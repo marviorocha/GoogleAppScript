@@ -1,15 +1,28 @@
-// --- CONFIGURAÇÃO ---
-// IDs do Google Drive
 const ID_PASTA_PRINCIPAL = "1RG-_ksaoZp1LRh4WAbQb-c0RyJKUWatd";
 const ID_TEMPLATE_TABELA = "1g4JpVfj9Jqcf_ni8kMthOaf2HBDOX7z67GjXkxXtukA";
 const ID_TEMPLATE_ESPECIFICACAO = "1S909a4evnD8Q3zBZAuLyJzOCwhbG7AtD";
 const ID_TEMPLATE_COMPARATIVO_PROPOSTAS = "1bB6EfjdJG2CXkw686Ik4TCwgiIQUNzkA";
 const ID_PLANILHA_APPSHEET = "1Y-riSqidwDZfI2bhKE2fAAGhnQK4-h9Pc1_Z1mUnH1g";
 
-const NOME_DA_PLANILHA = "Clientes"; // IMPORTANTE: Verifique se este é o nome exato da sua aba
-const NUMERO_COLUNA_CHAVE = 1;         // Coluna A = 1, B = 2, etc. A coluna que tem o ID único do cliente.
-const NUMERO_COLUNA_ID_PASTA = 26;     // Coluna Y = 25. A coluna onde o ID da pasta será salvo.
-// --- FIM DA CONFIGURAÇÃO ---
+const NOME_DA_PLANILHA = "Clientes";
+const NUMERO_COLUNA_CHAVE = 1;
+// Pode ser uma letra de coluna (ex: 'C') ou o NOME do cabeçalho (ex: 'id_pasta')
+const NOME_COLUNA_ID_PASTA = "C"; // altere para o nome do cabeçalho, por exemplo: 'id_pasta'
+
+
+/**
+ * Converte uma letra de coluna (A, B, C, etc) para seu número correspondente (1, 2, 3, etc)
+ * @param {string} column A letra da coluna
+ * @return {number} O número correspondente à coluna
+//  */
+function columnToNumber(column) {
+    let result = 0;
+    for (let i = 0; i < column.length; i++) {
+        result *= 26;
+        result += column.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
+    }
+    return result;
+}
 
 /**
  * Ponto de entrada para o AppSheet. Recebe os dados e coordena as ações.
@@ -31,7 +44,6 @@ function doPost(e) {
             throw new Error("Dados essenciais (nome do cliente ou chave da linha) não foram recebidos do AppSheet.");
         }
 
-        // Chama a função principal que executa todo o processo
         const resultado = criarPastaEAtualizarPlanilha(nomeDoCliente, chaveDaLinha);
 
         return ContentService.createTextOutput(JSON.stringify({
@@ -55,7 +67,6 @@ function doPost(e) {
  */
 function criarPastaEAtualizarPlanilha(nomeCliente, chaveLinha) {
     try {
-        // Verifica se a pasta já existe
         const pastaPrincipal = DriveApp.getFolderById(ID_PASTA_PRINCIPAL);
         const pastasFilhas = pastaPrincipal.getFolders();
         let pastaExistente = null;
@@ -73,12 +84,10 @@ function criarPastaEAtualizarPlanilha(nomeCliente, chaveLinha) {
             Logger.log("Pasta já existe para o cliente: " + nomeCliente);
             idDaNovaPasta = pastaExistente.getId();
         } else {
-            // 1. Cria a estrutura de pastas e retorna o ID da nova pasta do cliente.
             idDaNovaPasta = criarEstruturaDePastas(nomeCliente);
             Logger.log("Nova pasta criada com ID: " + idDaNovaPasta);
         }
 
-        // 2. Encontra a linha correta na planilha e salva o ID da pasta.
         Logger.log("Tentando acessar a planilha com ID: " + ID_PLANILHA_APPSHEET);
 
         let spreadsheet;
@@ -96,20 +105,17 @@ function criarPastaEAtualizarPlanilha(nomeCliente, chaveLinha) {
         const rangeDeDados = planilha.getDataRange();
         const valores = rangeDeDados.getValues();
 
-        // Log informações importantes para debug
         Logger.log("Buscando chave: '" + chaveLinha + "'");
         Logger.log("Número total de linhas na planilha: " + valores.length);
         Logger.log("Procurando na coluna: " + NUMERO_COLUNA_CHAVE);
 
-        // Mostra os valores das primeiras linhas para verificação
         Logger.log("=== Primeiras linhas da planilha ===");
         for (let i = 0; i < Math.min(5, valores.length); i++) {
             const valorNaColuna = valores[i][NUMERO_COLUNA_CHAVE - 1];
             Logger.log("Linha " + (i + 1) + " - Valor: '" + valorNaColuna + "' (tipo: " + typeof valorNaColuna + ")");
         }
 
-        // Procura pela chave em todas as linhas
-        for (let i = 1; i < valores.length; i++) { // Começa em i=1 para pular a linha do cabeçalho
+        for (let i = 1; i < valores.length; i++) {
             const valorAtual = valores[i][NUMERO_COLUNA_CHAVE - 1];
             const valorAtualString = valorAtual.toString().trim();
             const chaveLinhaString = chaveLinha.toString().trim();
@@ -117,16 +123,14 @@ function criarPastaEAtualizarPlanilha(nomeCliente, chaveLinha) {
             Logger.log("Comparando - Linha " + (i + 1) + ": '" + valorAtualString + "' com chave: '" + chaveLinhaString + "'");
 
             if (valorAtualString === chaveLinhaString) {
-                // Encontrou a linha, agora escreve o ID na coluna 25 (Y)
                 planilha.getRange(i + 1, NUMERO_COLUNA_ID_PASTA).setValue(idDaNovaPasta);
                 const statusPasta = pastaExistente ? "existente" : "recém-criada";
                 Logger.log("ID da pasta " + statusPasta + " '" + idDaNovaPasta + "' salvo na linha " + (i + 1) + " para o cliente '" + nomeCliente + "'.");
-                SpreadsheetApp.flush(); // Garante que a alteração seja salva imediatamente
+                SpreadsheetApp.flush();
                 return "ID da pasta " + idDaNovaPasta + " (" + statusPasta + ") salvo com sucesso na linha " + (i + 1);
             }
         }
 
-        // Se o loop terminar e não encontrar a linha, lança um erro.
         throw new Error("A linha com a chave '" + chaveLinha + "' não foi encontrada na planilha.");
     } catch (error) {
         Logger.log("Erro em criarPastaEAtualizarPlanilha: " + error.message);
@@ -149,28 +153,22 @@ function criarEstruturaDePastas(nomeDoCliente) {
 
     const templateTabela = DriveApp.getFileById(ID_TEMPLATE_TABELA);
     const templateEspecificacao = DriveApp.getFileById(ID_TEMPLATE_ESPECIFICACAO);
-    const templateComparativoPropostas = DriveApp.getFileById(ID_TEMPLATE_COMPARATIVO_PROPOSTAS); // <-- Novo
+    const templateComparativoPropostas = DriveApp.getFileById(ID_TEMPLATE_COMPARATIVO_PROPOSTAS);
 
     templateTabela.makeCopy("Tabela Comparativa - " + nomeDoCliente, pastaCliente);
     templateEspecificacao.makeCopy("Especificação Técnica - " + nomeDoCliente, pastaCliente);
-    templateComparativoPropostas.makeCopy("Comparativo de Propostas - Elevador Residencial e Plataforma - " + nomeDoCliente, pastaCliente); // <-- Novo
+    templateComparativoPropostas.makeCopy("Comparativo de Propostas - Elevador Residencial e Plataforma - " + nomeDoCliente, pastaCliente);
 
     Logger.log("Estrutura de pastas criada para '" + nomeDoCliente + "'.");
-    return idCliente; // Retorna o ID para a função principal
+    return idCliente;
 }
 
 /**
  * Função de teste para facilitar a execução manual.
  */
-function testarFluxoCompleto(nomeClienteTeste,chaveLinhaTeste ) {
+function testarFluxoCompleto(nomeClienteTeste, chaveLinhaTeste) {
 
-    // const nomeClienteTeste = "Cliente para Testes (PR)";
-    // const chaveLinhaTeste = "78956fcd";
 
-    // if (chaveLinhaTeste === "58cd65bf") {
-    //   Logger.log("Por favor, edite a função 'testarFluxoCompleto' e adicione uma chave de linha real da sua planilha para poder testar.");
-    //   return;
-    // }
 
     criarPastaEAtualizarPlanilha(nomeClienteTeste, chaveLinhaTeste);
 }
