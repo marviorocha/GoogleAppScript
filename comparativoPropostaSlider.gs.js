@@ -102,13 +102,25 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null) {
 
   const data = todayDateString();
   const modeloId = '1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng';
-  const copia = DriveApp.getFileById(modeloId).makeCopy('Apresentação Gerada' + data + " " + detalhes_proposta.name);
 
+  // Nome do cliente/identificador para evitar criar múltiplas cópias em reenvios
+  const nomeCliente = detalhes_proposta.nome || detalhes_proposta.name || detalhes_proposta.client || detalhes_proposta.endereco || 'Cliente';
+  const filename = 'Apresentação Gerada - ' + nomeCliente + ' - ' + data;
 
+  // Se já existe um arquivo com o mesmo nome, reutiliza em vez de criar outra cópia
+  let copiaFile;
+  const existing = DriveApp.getFilesByName(filename);
+  if (existing.hasNext()) {
+    copiaFile = existing.next();
+    Logger.log('Reutilizando cópia existente: ' + filename);
+  } else {
+    copiaFile = DriveApp.getFileById(modeloId).makeCopy(filename);
+    Logger.log('Criando nova cópia: ' + filename);
+  }
 
   Utilities.sleep(1000);
 
-  const presentation = SlidesApp.openById(copia.getId());
+  const presentation = SlidesApp.openById(copiaFile.getId());
   const slides = presentation.getSlides();
 
   for (const slide of slides) {
@@ -129,7 +141,10 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null) {
   }
 
   Logger.log('Apresentação gerada com sucesso ' + presentation.getUrl());
-  Logger.log('DataJSON' + detalhes_proposta);
+  Logger.log('DataJSON ' + JSON.stringify(detalhes_proposta));
+
+  // Retorna a URL da apresentação gerada/recuperada
+  return presentation.getUrl();
 }
 
 
@@ -157,9 +172,9 @@ function doPost(e) {
       detalhes_proposta = body.data || body;
     }
 
-    gerarApresentacaoDoModelo(detalhes_proposta);
+    const presentationUrl = gerarApresentacaoDoModelo(detalhes_proposta);
 
-    return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ok', url: presentationUrl }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     Logger.log('doPost error: ' + err);
