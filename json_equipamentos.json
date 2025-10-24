@@ -1,12 +1,12 @@
 {
     "cliente": {
         "nome": "<<[Nome]>>",
-        "endereco": "",
-        "tipo_imovel": "",
-        "numero_elevadores": "",
-        "numero_pavimentos": "",
-        "data_previsao_instalacao": "",
-        "imagem_imovel": "",
+        "endereco": "<<[Related Especificacaos][Endereço]>>",
+        "tipo_imovel": "<<[Related Especificacaos][Tipo de Imóvel]>>",
+        "numero_elevadores": "<<[Related Especificacaos][Número de Elevadores]>>",
+        "numero_pavimentos": "<<[Related Especificacaos][Número de Pavimentos]>>",
+        "data_previsao_instalacao": "<<[Related Especificacaos][Data de Previsão para Instalação do Elevador]>>",
+        "imagem_imovel": "<<[Related Especificacaos][Imagem do Imóvel]>>",
         "rede_eletrica": "",
         "caixa_corrida_step": "",
         "status_caixa_corrida": "",
@@ -20,8 +20,8 @@
         "tipo_equipamento": "",
         "capacidade": "",
         "velocidade": "",
-        "acabamento_da_cabina": "",
-        "porta_da_cabina": "",
+        "acabamento_da_cabine": "",
+        "porta_da_cabine": "",
         "porta_de_pavimento": "",
         "entradas": "",
         "acabamento_das_portas": "",
@@ -29,12 +29,22 @@
         "observacao": "",
         "preco": ""
     },
-    "propostas_1": [
+    "propostas": [
         {
             "id_proposta": "<<[ID da Proposta]>>",
-            "empresa": "<<[Empresa].[Nome da Empresa]>>",
-            "modelo_do_produto": "<<[Modelo Ofertado].[Nome do Equipamento]>>",
-       
+            "nome_equipamento_1": "<<[Nome do Equipamento 1]>>",
+            "empresa_equipamento_1": "<<[]>>",
+            "image_1_equipamento_1": "<<[]>>",
+            "image_2_equipamento_1": "<<[]>>",
+            "preco_1": "<<[Preço do Equipamento 1]>>"
         },
+        {
+            "id_proposta": "<<[ID da Proposta]>>",
+            "nome_equipamento_2": "<<[Nome do Equipamento 1]>>",
+            "empresa_equipamento_2": "<<[]>>",
+            "image_1_equipamento_2": "<<[]>>",
+            "image_2_equipamento_2": "<<[]>>",
+            "preco_2": "<<[Preço do Equipamento 1]>>"
+        }
     ]
 }
