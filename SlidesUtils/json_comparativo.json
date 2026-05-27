@@ -376,6 +376,6 @@
     "imagem_1_equipamento_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 12), "Propostas", "ID da Proposta", "Foto ID 1")>>",
     "imagem_2_equipamento_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 12), "Propostas", "ID da Proposta", "Foto ID 2")>>",
     "observacoes_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 12), "Propostas", "ID da Proposta", "Observações")>>",
-    "link_catalogo_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 10), "Propostas", "ID da Proposta", "Link para Equipamento")>>",
+    "link_catalogo_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 12), "Propostas", "ID da Proposta", "Link para Equipamento")>>",
     "LINK_PROPOSTA_12": "<<LOOKUP(INDEX([Propostas Ordenadas por Preço], 12), "Propostas", "ID da Proposta", "Link_do_arquivo")>>"
 }
