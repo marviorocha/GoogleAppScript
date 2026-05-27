@@ -80,19 +80,19 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
       link_catalogo_3: "https://drive.google.com/drive/folders/1OUp-2mORToiirl0sLIStictxAaO6s5f4?usp=drive_link"
     };
   }
-  
-  // Garantia de config padrão caso não seja passado, para evitar erros no teste manual
+
+
   if (!config || !config.modeloId) {
     Logger.log("Aviso: Configuração 'modeloId' ausente. Usando ID de teste padrão.");
     config = {
-      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng", // O seu ID padrão
+      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng",
       baseFolderId: null
     };
   }
 
   const modeloId = config.modeloId;
   const dataAtual = Utils.todayDateString();
-  
+
   // Definição do nome do arquivo
   const nomeClienteOriginal = detalhes_proposta.nome || detalhes_proposta.nome_cliente_sanitizado || "Cliente";
   const nomeClienteSanitizado = Utils.sanitizeDriveFolderName(nomeClienteOriginal);
@@ -101,7 +101,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   // Resolução da Pasta de Destino
   const clientFolderId = detalhes_proposta.pasta_cliente_id;
   let pastaDestino;
-  
+
   if (clientFolderId) {
     pastaDestino = DriveManager.getOrCreateFolder(clientFolderId);
   } else if (config.baseFolderId) {

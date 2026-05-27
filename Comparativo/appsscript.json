@@ -1,0 +1,23 @@
+{
+  "timeZone": "America/Sao_Paulo",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "DriveUtilsgs",
+        "libraryId": "1ToPSYhvbasBBWPMvbJPcBIfC5yFtoTCICtHF2vPM60TRGoIs-HqzhHet",
+        "version": "1"
+      },
+      {
+        "userSymbol": "SlidesUtils",
+        "libraryId": "1WGU5MNbzRerXN4OWmgO97De8XJ0-u47PfpT4cs82VeDcrGO8Z3i5OubS",
+        "version": "16"
+      }
+    ]
+  },
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  }
+}
