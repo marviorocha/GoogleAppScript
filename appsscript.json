@@ -1,0 +1,20 @@
+{
+  "timeZone": "America/Sao_Paulo",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "DriveUtils",
+        "libraryId": "1ToPSYhvbasBBWPMvbJPcBIfC5yFtoTCICtHF2vPM60TRGoIs-HqzhHet",
+        "version": "1"
+      },
+      {
+        "userSymbol": "Formatters",
+        "version": "3",
+        "libraryId": "1OnZVmNR_r7vf_tO3WYw9lh4uEZqs6E0zy-sTH4BU0S3ognw6jG4sx22D",
+        "developmentMode": false
+      }
+    ]
+  }
+}
