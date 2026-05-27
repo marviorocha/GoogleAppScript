@@ -102,7 +102,7 @@ const SlidesProcessor = {
           const style = linkRange.getTextStyle();
           style.setLinkUrl(linkData.url);
           style.setFontSize(LinkModule.VisualDefaults.fontSize);
-          style.setForegroundColor(LinkModule.VisualDefaults.color);
+          style.setForegroundColor(linkData.config.color || LinkModule.VisualDefaults.color);
           style.setUnderline(true);
           try { style.setFontFamily(LinkModule.VisualDefaults.fontFamily); } catch (e) {}
 

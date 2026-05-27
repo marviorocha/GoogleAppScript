@@ -1,7 +1,7 @@
 const LinkModule = {
   Registry: {
-    PROPOSTA: { type: "file", label: "Proposta", color: "#1F8FE6" },
-    CATALOGO: { type: "folder", label: "Catálogo", color: "#34A853" },
+    PROPOSTA: { type: "file", label: "Proposta", color: "#ffffff" },
+    CATALOGO: { type: "folder", label: "Catálogo", color: "#4d4d4d" },
     VIDEO: { type: "file", label: "Vídeo", color: "#D33427" },
     MANUAL: { type: "file", label: "Manual Técnico", color: "#F57C00" },
     DRIVE: { type: "file", label: "Arquivo", color: "#1F8FE6" }
@@ -10,7 +10,9 @@ const LinkModule = {
   VisualDefaults: { fontFamily: "Ubuntu", fontSize: 10, color: "#FFFFFF" },
 
   detectType: function(key) {
-    const k = String(key).toUpperCase();
+    // Normaliza a string para remover acentos e facilitar a busca
+    const k = String(key).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
     if (k.includes("PROPOSTA")) return "PROPOSTA";
     if (k.includes("CATALOGO")) return "CATALOGO";
     if (k.includes("VIDEO")) return "VIDEO";
