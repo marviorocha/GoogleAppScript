@@ -76,7 +76,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
       link_proposta_2: "1_another_drive_id_for_proposal_2",
       link_proposta_3: "1_yet_another_drive_id_for_proposal_3",
       link_catalogo_1: "https://drive.google.com/drive/folders/1_zJK29lb5bzh1wB-EkagINL_nl0SX0iW?usp=drive_link",
-      link_catalogo_2: "https://drive.google.com/drive/folders/1hVUEKI9mM-ELSJMAECOwS8g90iopZxAK?usp=drive_link",
+      link_catalogo_2: "",
       link_catalogo_3: "https://drive.google.com/drive/folders/1OUp-2mORToiirl0sLIStictxAaO6s5f4?usp=drive_link"
     };
   }
@@ -124,6 +124,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   const textReplacements = [{ placeholder: "{{DATA}}", value: dataAtual }];
   const isImageKey = (key) => /(imagem|image|foto)/i.test(key);
 
+  const elementsToDelete = [];
   // Criamos uma cópia dos detalhes para filtrar links vazios antes do processamento de links
   const detalhesFiltrados = { ...detalhes_proposta };
 
@@ -135,6 +136,12 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
       if (rawVal === "") {
         // Se o link está vazio, garantimos que o placeholder seja removido do texto
         textReplacements.push({ placeholder: `{{${chave.toUpperCase()}}}`, value: "" });
+
+        // Se for um link de catálogo, adicionamos o nome do botão à lista de deleção
+        const catMatch = chave.match(/^link_catalogo_(\d+)$/i);
+        if (catMatch) {
+          elementsToDelete.push(`Botao_Catalogo_${catMatch[1]}`);
+        }
         delete detalhesFiltrados[chave];
       }
       continue;
@@ -156,6 +163,14 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
     for (const replacement of textReplacements) {
       slide.replaceAllText(replacement.placeholder, replacement.value);
     }
+
+    // Remove shapes/botões nomeados que não possuem link
+    if (elementsToDelete.length > 0) {
+      slide.getPageElements().forEach(el => {
+        if (elementsToDelete.includes(el.getTitle())) el.remove();
+      });
+    }
+
     SlidesProcessor.processElementsSinglePass(slide, dynamicImagesMap, linksToProcess);
   }
 
