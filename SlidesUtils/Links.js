@@ -6,7 +6,7 @@ const LinkModule = {
     MANUAL: { type: "file", label: "Manual Técnico", color: "#F57C00" },
     DRIVE: { type: "file", label: "Arquivo", color: "#1F8FE6" }
   },
-  
+
   VisualDefaults: { fontFamily: "Ubuntu", fontSize: 10, color: "#FFFFFF" },
 
   detectType: function(key) {
@@ -22,7 +22,7 @@ const LinkModule = {
     const links = {};
     for (const [key, value] of Object.entries(dadosProposta)) {
       if (!value || typeof value !== "string" || !/link/i.test(key)) continue;
-      
+
       const extracted = DriveManager.extractId(value);
       if (!extracted.id) continue;
 

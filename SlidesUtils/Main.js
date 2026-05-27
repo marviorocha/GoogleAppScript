@@ -124,20 +124,32 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   const textReplacements = [{ placeholder: "{{DATA}}", value: dataAtual }];
   const isImageKey = (key) => /(imagem|image|foto)/i.test(key);
 
+  // Criamos uma cópia dos detalhes para filtrar links vazios antes do processamento de links
+  const detalhesFiltrados = { ...detalhes_proposta };
+
   for (const [chave, valor] of Object.entries(detalhes_proposta)) {
-    if (/link/i.test(chave)) continue;
+    const isLink = /link/i.test(chave);
+    const rawVal = (valor == null || valor === "null") ? "" : String(valor).trim();
+
+    if (isLink) {
+      if (rawVal === "") {
+        // Se o link está vazio, garantimos que o placeholder seja removido do texto
+        textReplacements.push({ placeholder: `{{${chave.toUpperCase()}}}`, value: "" });
+        delete detalhesFiltrados[chave];
+      }
+      continue;
+    }
 
     if (isImageKey(chave)) {
       const extracted = DriveManager.extractId(valor);
       if (extracted.id) dynamicImagesMap[chave.toUpperCase()] = extracted.id;
     } else {
-      const rawVal = valor == null ? "" : String(valor);
       const finalVal = /^preco/i.test(chave) ? Utils.formatCurrencyBR(rawVal) : rawVal;
       textReplacements.push({ placeholder: `{{${chave.toUpperCase()}}}`, value: finalVal });
     }
   }
 
-  const linksToProcess = LinkModule.processAll(detalhes_proposta);
+  const linksToProcess = LinkModule.processAll(detalhesFiltrados);
 
   // Processamento massivo slide a slide
   for (const slide of slides) {
