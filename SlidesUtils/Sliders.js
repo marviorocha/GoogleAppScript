@@ -2,7 +2,7 @@
 // MÓDULO 4: SLIDES.GS (Manipulação Avançada de Slides com Tratamento de Erros)
 // ============================================================================
 const SlidesProcessor = {
-  blobCache: {}, 
+  blobCache: {},
 
   getBlobCached: function(fileId) {
     if (!this.blobCache[fileId]) {
@@ -63,7 +63,7 @@ const SlidesProcessor = {
       for (const [key, imageId] of Object.entries(imagesMap)) {
         const placeholder = `{{${key}}}`;
         const trimmed = text.trim();
-        
+
         if (trimmed === placeholder || trimmed === imageId || text.match(/^[a-zA-Z0-9_-]{15,}$/)) {
           try {
             const blob = this.getBlobCached(imageId);
@@ -71,11 +71,11 @@ const SlidesProcessor = {
             const top = shapeOrElement.getTop();
             const width = shapeOrElement.getWidth();
             const height = shapeOrElement.getHeight();
-            
-            shapeOrElement.remove(); 
+
+            shapeOrElement.remove();
             const img = slide.insertImage(blob);
             img.setLeft(left).setTop(top).setWidth(width).setHeight(height);
-            return; 
+            return;
           } catch (err) {
             Logger.log(`Falha ao inserir imagem ${imageId}: ${err}`);
           }
