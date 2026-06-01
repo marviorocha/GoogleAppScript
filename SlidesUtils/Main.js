@@ -96,7 +96,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   // Definição do nome do arquivo
   const nomeClienteOriginal = detalhes_proposta.nome || detalhes_proposta.nome_cliente_sanitizado || "Cliente";
   const nomeClienteSanitizado = Utils.sanitizeDriveFolderName(nomeClienteOriginal);
-  const filename = `Apresentação - ${nomeClienteSanitizado} - ${dataAtual}`;
+  const filename = `Apresentação de Propostas - ${nomeClienteSanitizado} - ${dataAtual}`;
 
   // Resolução da Pasta de Destino
   const extractedFolder = DriveManager.extractId(detalhes_proposta.pasta_cliente_id);
