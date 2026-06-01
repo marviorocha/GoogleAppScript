@@ -71,7 +71,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
       imagem_2_equipamento_1: "1kuL22jwBXus7-hJ7775mfT3gnxOuhv3g",
       ano_cliente: "2026",
       nome_cliente_sanitizado: "Usuário de Testes (SP)",
-      pasta_cliente_id: "19-a60FGVWrZI_E4K98qqZLi3rwRKRac_",
+      pasta_cliente_id: "1omYGsviXitgC2t-u6MlLplo62hBoV0iC",
       link_proposta_1: "1dEYlUC5QYmhsAVDS016QTrRD965jYlel",
       link_proposta_2: "1_another_drive_id_for_proposal_2",
       link_proposta_3: "1_yet_another_drive_id_for_proposal_3",
@@ -85,7 +85,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   if (!config || !config.modeloId) {
     Logger.log("Aviso: Configuração 'modeloId' ausente. Usando ID de teste padrão.");
     config = {
-      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng/",
+      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng",
       baseFolderId: null
     };
   }
@@ -96,7 +96,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   // Definição do nome do arquivo
   const nomeClienteOriginal = detalhes_proposta.nome || detalhes_proposta.nome_cliente_sanitizado || "Cliente";
   const nomeClienteSanitizado = Utils.sanitizeDriveFolderName(nomeClienteOriginal);
-  const filename = `Apresentação Gerada - ${nomeClienteSanitizado} - ${dataAtual}`;
+  const filename = `Apresentação - ${nomeClienteSanitizado} - ${dataAtual}`;
 
   // Resolução da Pasta de Destino
   const extractedFolder = DriveManager.extractId(detalhes_proposta.pasta_cliente_id);
