@@ -1,11 +1,15 @@
 const DriveManager = {
   getOrCreateFolder: function(folderId, path) {
     if (!folderId) throw new Error("folderId inválido");
+
+    // Tenta extrair o ID caso tenha sido passada uma URL completa
+    const extracted = this.extractId(folderId);
+    const actualId = extracted.id || folderId;
     let currentFolder;
     try {
-      currentFolder = DriveApp.getFolderById(folderId);
+      currentFolder = DriveApp.getFolderById(actualId);
     } catch (err) {
-      throw new Error(`Não foi possível acessar a pasta ID=${folderId}: ${err}`);
+      throw new Error(`Não foi possível acessar a pasta ID=${actualId}: ${err}`);
     }
 
     if (!path) return currentFolder;
@@ -21,7 +25,7 @@ const DriveManager = {
   extractId: function(value) {
     if (!value || typeof value !== "string") return { id: null, type: null };
     const trimmed = value.trim();
-    
+
     const patterns = {
       textFunction: /text\("([a-zA-Z0-9_-]{20,})"\)/,
       folder: /\/folders\/([a-zA-Z0-9_-]{20,})/,
@@ -39,7 +43,7 @@ const DriveManager = {
 
   buildUrl: function(id, type = "file") {
     if (!id || typeof id !== "string") throw new Error("ID do Drive inválido");
-    return type === "folder" 
+    return type === "folder"
       ? `https://drive.google.com/drive/folders/${id.trim()}`
       : `https://drive.google.com/file/d/${id.trim()}/view`;
   }

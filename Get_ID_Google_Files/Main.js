@@ -1,53 +1,124 @@
 /**
- * Recebe a requisição POST vinda do Webhook do AppSheet
+ * Google Apps Script: Integração AppSheet -> Google Sheets
+ * Objetivo: Extrair o ID real de arquivos do Google Drive a partir de URLs ou caminhos do AppSheet.
  */
-function doPost(e) {
+
+// --- CONFIGURAÇÃO ---
+const CONFIG = {
+  SOURCE_COLUMN: 1, // Coluna onde está o link/caminho (A=1, B=2...)
+  TARGET_COLUMN: 2, // Coluna onde o ID será salvo
+  SHEET_NAME: "Planilha1" // Nome da aba (altere conforme necessário)
+};
+
+/**
+ * Função principal para processamento.
+ * Pode ser chamada por gatilho onEdit ou via Automação do AppSheet.
+ */
+function processarExtracaoID(e, rowOverride) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+
+  if (!sheet) {
+    console.error("Planilha não encontrada: " + CONFIG.SHEET_NAME);
+    return;
+  }
+
+  let row = rowOverride;
+
+  // Se vier de um gatilho onEdit
+  if (e && e.range) {
+    const range = e.range;
+    if (range.getSheet().getName() !== CONFIG.SHEET_NAME || range.getColumn() !== CONFIG.SOURCE_COLUMN) {
+      return;
+    }
+    row = range.getRow();
+  }
+
+  if (!row) return;
+
+  const valorCelula = sheet.getRange(row, CONFIG.SOURCE_COLUMN).getValue().toString().trim();
+  if (!valorCelula) return;
+
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return construirRespostaJSON({ status: "error", message: "Payload vazio ou inválido." });
-    }
+    const fileId = extrairIdDoDrive(valorCelula);
 
-    // 1. Parseia os dados enviados pelo AppSheet
-    const payload = JSON.parse(e.postData.contents);
-    Logger.log("Payload recebido do AppSheet: " + JSON.stringify(payload));
-
-    // 2. Extrai as informações chaves enviadas pelo Webhook
-    // Certifique-se de enviar esses parâmetros no corpo do Webhook no AppSheet
-    const caminhoRelativo = payload.caminho_arquivo; // Ex: "Especificacao_Images/f1ccf75d.Imagem.png"
-    const idLinha = payload.id_linha;               // A chave primária (Key) da linha para sabermos onde gravar
-    const nomeAba = payload.nome_aba || "Propostas Importadas"; // Nome da aba a ser atualizada
-    
-    if (!caminhoRelativo || !idLinha) {
-      return construirRespostaJSON({ status: "error", message: "Parâmetros 'caminho_arquivo' ou 'id_linha' ausentes." });
-    }
-
-    // 3. Executa o motor de busca do arquivo no Drive
-    const idDriveDetectado = AppSheetDriveResolver.resolverIdPorCaminho(caminhoRelativo);
-
-    if (!idDriveDetectado) {
-      return construirRespostaJSON({ status: "not_found", message: "Arquivo não localizado no Drive ainda." });
-    }
-
-    // 4. Grava o ID de volta na planilha na coluna correta
-    const planilhaId = "1YIU_nYTFMN0RS5zaXwtD2Wj9I-rshaD3QiHu2C6m0k0"; // Seu ID de planilha padrão
-    const gravou = PlanilhaManager.atualizarIdNaLinha(planilhaId, nomeAba, idLinha, idDriveDetectado);
-
-    if (gravou) {
-      return construirRespostaJSON({ status: "success", id_drive: idDriveDetectado });
+    if (fileId && validarExistenciaArquivo(fileId)) {
+      sheet.getRange(row, CONFIG.TARGET_COLUMN).setValue(fileId);
     } else {
-      return construirRespostaJSON({ status: "error", message: "Arquivo achado, mas falhou ao gravar na planilha. Chave não encontrada." });
+      sheet.getRange(row, CONFIG.TARGET_COLUMN).setValue("Erro: ID inválido ou arquivo inacessível");
     }
-
   } catch (err) {
-    Logger.log("Erro crítico no doPost: " + err.toString());
-    return construirRespostaJSON({ status: "error", message: err.toString() });
+    sheet.getRange(row, CONFIG.TARGET_COLUMN).setValue("Erro: " + err.message);
   }
 }
 
 /**
- * Auxiliar para estruturar o retorno do Webhook em JSON correto
+ * Extrai o ID do arquivo utilizando Regex otimizada.
+ * @param {string} entrada - URL completa ou caminho relativo.
+ * @return {string|null} - O ID extraído ou null.
  */
-function construirRespostaJSON(objeto) {
-  return ContentService.createTextOutput(JSON.stringify(objeto))
-    .setMimeType(ContentService.MimeType.JSON);
+function extrairIdDoDrive(entrada) {
+  // Regex para capturar IDs de 25 a 100 caracteres (padrão Drive)
+  // Captura após /d/, id=, ou em strings isoladas
+  const regexId = /[-\w]{25,100}/;
+
+  // 1. Verificar se é uma URL conhecida
+  if (entrada.includes("http")) {
+    const matches = entrada.match(regexId);
+    return matches ? matches[0] : null;
+  }
+
+  // 2. Se for caminho relativo do AppSheet (ex: Tabela_Imagens/foto.jpg)
+  if (entrada.includes("/")) {
+    return buscarIdPorCaminhoRelativo(entrada);
+  }
+
+  // 3. Tentar regex genérica no que sobrar
+  const genericMatch = entrada.match(regexId);
+  return genericMatch ? genericMatch[0] : null;
+}
+
+/**
+ * Busca o arquivo no Drive pelo nome quando o AppSheet fornece apenas o caminho.
+ * @param {string} caminho - Caminho relativo (ex: "Pasta/Arquivo.pdf").
+ */
+function buscarIdPorCaminhoRelativo(caminho) {
+  const partes = caminho.split("/");
+  const nomeArquivo = partes[partes.length - 1];
+
+  // Busca por nome exato no Drive do usuário
+  const arquivos = DriveApp.getFilesByName(nomeArquivo);
+
+  if (arquivos.hasNext()) {
+    return arquivos.next().getId();
+  }
+
+  throw new Error("Arquivo não localizado no Drive pelo nome");
+}
+
+/**
+ * Valida se o ID pertence a um arquivo existente e acessível.
+ */
+function validarExistenciaArquivo(id) {
+  try {
+    DriveApp.getFileById(id);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * GATILHO: Executa ao editar a planilha manualmente.
+ */
+function onEdit(e) {
+  processarExtracaoID(e);
+}
+
+/**
+ * INTEGRAÇÃO APPSHEET: Chamar esta função via Automação (Call a Script).
+ * @param {number} rowNumber - Passar o número da linha como parâmetro.
+ */
+function gatilhoAppSheet(rowNumber) {
+  processarExtracaoID(null, rowNumber);
 }

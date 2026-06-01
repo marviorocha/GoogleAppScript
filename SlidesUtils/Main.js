@@ -85,7 +85,7 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   if (!config || !config.modeloId) {
     Logger.log("Aviso: Configuração 'modeloId' ausente. Usando ID de teste padrão.");
     config = {
-      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng",
+      modeloId: "1gt6u879U2olNMnhK1SOrja1y5HA0lOk53_Cn5v91hng/",
       baseFolderId: null
     };
   }
@@ -99,7 +99,8 @@ function gerarApresentacaoDoModelo(detalhes_proposta = null, config = {}) {
   const filename = `Apresentação Gerada - ${nomeClienteSanitizado} - ${dataAtual}`;
 
   // Resolução da Pasta de Destino
-  const clientFolderId = detalhes_proposta.pasta_cliente_id;
+  const extractedFolder = DriveManager.extractId(detalhes_proposta.pasta_cliente_id);
+  const clientFolderId = extractedFolder.id;
   let pastaDestino;
 
   if (clientFolderId) {
