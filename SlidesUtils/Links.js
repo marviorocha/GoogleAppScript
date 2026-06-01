@@ -25,11 +25,22 @@ const LinkModule = {
     for (const [key, value] of Object.entries(dadosProposta)) {
       if (!value || typeof value !== "string" || !/link/i.test(key)) continue;
 
+      const linkType = this.detectType(key);
+      const config = this.Registry[linkType] || this.Registry.DRIVE;
+
+      // Para Catálogos, usamos o link bruto conforme solicitado pelo usuário
+      if (linkType === "CATALOGO") {
+        links[`{{${key.toUpperCase()}}}`] = {
+          url_do_link: value.trim(),
+          config: config,
+          id_da_imagem_botao: config.buttonImageId
+        };
+        continue;
+      }
+
       const extracted = DriveManager.extractId(value);
       if (!extracted.id) continue;
 
-      const linkType = this.detectType(key);
-      const config = this.Registry[linkType] || this.Registry.DRIVE;
       const resourceType = extracted.type || config.type;
 
       links[`{{${key.toUpperCase()}}}`] = {
