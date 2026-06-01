@@ -1,7 +1,7 @@
 const LinkModule = {
   Registry: {
     PROPOSTA: { type: "file", label: "Proposta", color: "#ffffff", buttonImageId: "1AgqIhrpj516IddIRyyhTJmT9kSPmTn9s" },
-    CATALOGO: { type: "folder", label: "Catálogo", color: "#4d4d4d", buttonImageId: "1AgqIhrpj516IddIRyyhTJmT9kSPmTn9s" },
+    CATALOGO: { type: "folder", label: "Catálogo", color: "#4d4d4d", buttonImageId: "1sC_U_zHeFkoKrcS9eO6bfzrR_lSPh5WJ" },
     VIDEO: { type: "file", label: "Vídeo", color: "#D33427" },
     MANUAL: { type: "file", label: "Manual Técnico", color: "#F57C00" },
     DRIVE: { type: "file", label: "Arquivo", color: "#1F8FE6" }
