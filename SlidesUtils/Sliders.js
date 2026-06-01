@@ -92,23 +92,64 @@ const SlidesProcessor = {
 
     if (checkLinks) {
       for (const [placeholder, linkData] of Object.entries(linksMap)) {
-        const escapedPattern = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        let matches = textRange.find(escapedPattern);
+        if (linkData.id_da_imagem_botao) {
+          this._replaceWithImageButton(slide, shapeOrElement, textRange, placeholder, linkData);
+        } else {
+          const escapedPattern = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          let matches = textRange.find(escapedPattern);
 
-        while (matches && matches.length > 0) {
-          const linkRange = matches[0];
-          linkRange.setText(linkData.config.label);
+          while (matches && matches.length > 0) {
+            const linkRange = matches[0];
+            linkRange.setText(linkData.config.label);
 
-          const style = linkRange.getTextStyle();
-          style.setLinkUrl(linkData.url);
-          style.setFontSize(LinkModule.VisualDefaults.fontSize);
-          style.setForegroundColor(linkData.config.color || LinkModule.VisualDefaults.color);
-          style.setUnderline(true);
-          try { style.setFontFamily(LinkModule.VisualDefaults.fontFamily); } catch (e) {}
+            const style = linkRange.getTextStyle();
+            style.setLinkUrl(linkData.url_do_link);
+            style.setFontSize(LinkModule.VisualDefaults.fontSize);
+            style.setForegroundColor(linkData.config.color || LinkModule.VisualDefaults.color);
+            style.setUnderline(true);
+            try { style.setFontFamily(LinkModule.VisualDefaults.fontFamily); } catch (e) {}
 
-          matches = textRange.find(escapedPattern);
+            matches = textRange.find(escapedPattern);
+          }
         }
       }
+    }
+  },
+
+  _replaceWithImageButton: function(slide, shapeOrElement, textRange, placeholder, linkData) {
+    const text = textRange.asString();
+    if (!text.includes(placeholder)) return;
+
+    try {
+      const isOnlyPlaceholder = text.trim() === placeholder;
+      const blob = this.getBlobCached(linkData.id_da_imagem_botao);
+      
+      if (isOnlyPlaceholder && shapeOrElement.getPageElementType() !== SlidesApp.PageElementType.TABLE) {
+        const left = shapeOrElement.getLeft();
+        const top = shapeOrElement.getTop();
+        const width = shapeOrElement.getWidth();
+        const height = shapeOrElement.getHeight();
+        
+        shapeOrElement.remove();
+        const img = slide.insertImage(blob);
+        img.setLeft(left).setTop(top).setWidth(width).setHeight(height).setLinkUrl(linkData.url_do_link);
+      } else {
+        // Se estiver dentro de um texto ou tabela, remove o texto e insere a imagem próxima
+        const escapedPattern = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        let matches = textRange.find(escapedPattern);
+        while (matches && matches.length > 0) {
+          matches[0].setText("");
+          matches = textRange.find(escapedPattern);
+        }
+        
+        const img = slide.insertImage(blob);
+        img.setLinkUrl(linkData.url_do_link);
+        // Ajuste básico de tamanho para o botão se não puder herdar do shape
+        img.setWidth(100).setHeight(30); 
+        img.setLeft(shapeOrElement.getLeft()).setTop(shapeOrElement.getTop());
+      }
+    } catch (err) {
+      Logger.log(`Erro ao inserir botão de imagem para ${placeholder}: ${err}`);
     }
   }
 };

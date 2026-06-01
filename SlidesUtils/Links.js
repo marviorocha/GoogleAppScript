@@ -1,7 +1,7 @@
 const LinkModule = {
   Registry: {
-    PROPOSTA: { type: "file", label: "Proposta", color: "#ffffff" },
-    CATALOGO: { type: "folder", label: "Catálogo", color: "#4d4d4d" },
+    PROPOSTA: { type: "file", label: "Proposta", color: "#ffffff", buttonImageId: "1AgqIhrpj516IddIRyyhTJmT9kSPmTn9s" },
+    CATALOGO: { type: "folder", label: "Catálogo", color: "#4d4d4d", buttonImageId: "1AgqIhrpj516IddIRyyhTJmT9kSPmTn9s" },
     VIDEO: { type: "file", label: "Vídeo", color: "#D33427" },
     MANUAL: { type: "file", label: "Manual Técnico", color: "#F57C00" },
     DRIVE: { type: "file", label: "Arquivo", color: "#1F8FE6" }
@@ -33,8 +33,9 @@ const LinkModule = {
       const resourceType = extracted.type || config.type;
 
       links[`{{${key.toUpperCase()}}}`] = {
-        url: DriveManager.buildUrl(extracted.id, resourceType),
-        config: config
+        url_do_link: DriveManager.buildUrl(extracted.id, resourceType),
+        config: config,
+        id_da_imagem_botao: config.buttonImageId
       };
     }
     return links;
