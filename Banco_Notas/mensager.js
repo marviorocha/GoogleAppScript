@@ -11,6 +11,25 @@ CONCATENATE(
   ENCODEURL([Serviços].[Nome do Cliente]),
   "%2A%0A%0A",
 
+
+  "Caixa%3A%20",
+  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Largura Caixa")),
+  "%20x%20",
+  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Profundidade Caixa")),
+  "%20mm%0A",
+  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Entradas")),
+
+
+  "%0A%C3%9Altima%20Altura%3A%20",
+  ENCODEURL(CONCATENATE(LOOKUP([Serviços], "Especificacao", "Cliente", "Última Altura"), " mm")),
+
+  "%0APo%C3%A7o%3A%20",
+  ENCODEURL(CONCATENATE(LOOKUP([Serviços], "Especificacao", "Cliente", "Profundidade do Poço"), " mm")),
+
+  "%0ARede%20El%C3%A9trica%20Dispon%C3%ADvel%3A%20",
+  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Rede Elétrica")),
+
+  "%0A",
   ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Número de Pavimentos")),
   "%20Paradas%0APercurso%3A%20",
   ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Percurso")),
@@ -26,34 +45,18 @@ CONCATENATE(
 
   "%0AResgate%20Autom%C3%A1tico%3A%20",
   ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Resgate Automatico")),
-  "%0A%0A",
-
-  "Caixa%3A%20",
-  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Largura Caixa")),
-  "%20x%20",
-  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Profundidade Caixa")),
-  "%20mm%0A",
-  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Entradas")),
 
 
-  "%0A%C3%9Altima%20Altura%3A%20",
-  ENCODEURL(CONCATENATE(LOOKUP([Serviços], "Especificacao", "Cliente", "Última Altura"), " mm")),
-
-
-  "%0APo%C3%A7o%3A%20",
-  ENCODEURL(CONCATENATE(LOOKUP([Serviços], "Especificacao", "Cliente", "Profundidade do Poço"), " mm")),
-
-  "%0ARede%20El%C3%A9trica%20Dispon%C3%ADvel%3A%20",
-  ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Rede Elétrica")),
   IF(
     ISNOTBLANK(LOOKUP([Serviços], "Especificacao", "Cliente", "Observação")),
     CONCATENATE(
       "%0AObserva%C3%A7%C3%A3o%3A%20",
       ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Observação")),
-      "%0A%0A"
+
     ),
-    "%0A"
+    ""
   ),
+  "%0A",
   "Endere%C3%A7o%20de%20Instala%C3%A7%C3%A3o%3A%20",
   ENCODEURL(LOOKUP([Serviços], "Especificacao", "Cliente", "Endereço")),
 
@@ -82,7 +85,7 @@ CONCATENATE(
   ),
   "%0ACPF/CNPJ%3A%20",
   ENCODEURL(IF([Serviços].[Tipo de Documento] = "CPF", [Serviços].[cpf], [Serviços].[cnpj])),
-  "%0A%0A",
+  "%0A",
 
   "Poderia%20me%20encaminhar%20por%20aqui%2C%20por%20favor%2C%20at%C3%A9%20",
 
